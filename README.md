@@ -1,0 +1,37 @@
+# ETCD benchmark using Containernet
+
+
+## Structure
+
+The project contains a bunch of folders:
+
+- `benchmark-client` which is a `go` command line benchmark
+- `benchmark-server` a simple `go` http server that is responsible for running the `benchmark-client` process under the hood
+    and returns the results
+- `containernet-environment` - the test containernet setup that should start the `etcd` database and `benchmark-server` with arbitrary
+  network topology and resources limit
+  
+## Benchmark server
+The benchmark server is responsible for receiving http requests with the following body payload:
+```json
+{
+    "endpoints": "comma separated list of etcd instances with their respective ports e.g. localhost:2379,localhost:2380",
+    "clients": 2, // a number of clients that should be used for performing a single benchmark,
+    "total": 1000 // the number of total requests that should be performed against the database, either read or write
+}
+```
+
+Additionally the `read` benchmark has the additional parameters:
+```json
+{
+    "key": "key to query",
+    "endRange": "the range's end key when testing range performance"
+}
+```
+
+There are 2 endpoints available:
+- `/benchmark/read` - tests the read performance (operation `range`)
+- `/benchmark/write` - tests the write performance (operation `put`)
+    
+    
+

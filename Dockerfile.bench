@@ -1,0 +1,26 @@
+FROM golang:alpine AS client-builder
+
+WORKDIR /app
+RUN apk update && apk add --no-cache git
+
+COPY benchmark-client/go.mod ./
+COPY benchmark-client/go.sum ./
+RUN go mod download
+
+
+COPY benchmark-client/main.go main.go
+RUN CGO_ENABLED=0 go build -o /benchmark-client
+
+FROM golang:alpine AS server-builder
+
+WORKDIR /app
+RUN apk update && apk add --no-cache git
+
+COPY benchmark-server/server.go server.go
+RUN CGO_ENABLED=0 go build -o /benchmark-server server.go
+
+FROM scratch
+COPY --from=client-builder /benchmark-client /bin/benchmark-client
+COPY --from=server-builder /benchmark-server /bin/benchmark-server
+# The CMD should be replaced with a proper benchmark command line arguments and run via `docker run ...`
+CMD [ "/bin/benchmark-server" ]
