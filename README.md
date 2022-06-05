@@ -33,5 +33,16 @@ There are 2 endpoints available:
 - `/benchmark/read` - tests the read performance (operation `range`)
 - `/benchmark/write` - tests the write performance (operation `put`)
     
+Example call with `curl`:
+
+```bash
+# watchout when using docker-compose setup as the localhost domain will map to `etcd`
+# read benchmark
+curl -d '{"endpoints": "localhost:2379", "clients": 5, "total": 1000, "key": "foo", "endRange": "foo3"}'  http://localhost:8080/benchmark/read
+# write benchmark
+curl -d '{"endpoints": "localhost:2379", "clients": 5, "total": 1000}'  http://localhost:8080/benchmark/write
+```
+
+    
     
 
