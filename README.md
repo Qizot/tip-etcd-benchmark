@@ -43,6 +43,18 @@ curl -d '{"endpoints": "localhost:2379", "clients": 5, "total": 1000, "key": "fo
 curl -d '{"endpoints": "localhost:2379", "clients": 5, "total": 1000}'  http://localhost:8080/benchmark/write
 ```
 
-    
+
+## Containernet setup
+
+1. Install containernet https://github.com/containernet/containernet#option-1-bare-metal-installation
+2. Run the following command
+```
+cd containernet
+sudo python3 setup.py install
+```
+
+```sh
+./run.sh
+```
     
 

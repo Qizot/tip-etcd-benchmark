@@ -3,29 +3,37 @@ from mininet.node import Controller
 from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import info, setLogLevel
+from mininet.clean import cleanup
 setLogLevel('info')
 
+cleanup()
 net = Containernet(controller=Controller)
 info('*** Adding controller\n')
 net.addController('c0')
 info('*** Adding ETCD containers\n')
 etcd1 = net.addDocker(
     'etcd1', 
-    ip='10.0.0.200', 
-    dimage="bitnami/etcd",
+    ip='10.0.0.251', 
+    dimage="etcd_wrapper",
     environment={
-        'ETCD_LISTEN_CLIENT_URLS': 'http://10.0.0.200:2379',
-        'ETCD_ADVERTISE_CLIENT_URLS': 'http://10.0.0.200:2379',
-    }
+        'ETCD_LISTEN_CLIENT_URLS': 'http://10.0.0.251:2379',
+        'ETCD_ADVERTISE_CLIENT_URLS': 'http://10.0.0.251:2379',
+    },
+    ports=[2379]
 )
 
 info('*** Adding benchmark containers')
 
 benchmark1 = net.addDocker(
     'benchmark1', 
-    ip='10.0.0.240', 
+    ip='10.0.0.252', 
     dimage='etcd_benchmark',
-    dcmd='/bin/benchmark put --endpoints 10.0.0.200:2379'
+    environment={
+      "BENCHMARK_EXEC": "/bin/benchmark-client"
+    },
+    dcmd='/bin/benchmark-server &',
+    ports=[8080],
+    port_bindings={8080:8080}
 )
 
 info('*** Adding switches\n')
@@ -38,8 +46,6 @@ net.addLink(s2, benchmark1)
 
 info('*** Starting network\n')
 net.start()
-info('*** Testing connectivity\n')
-net.ping([etcd1, benchmark1])
 info('*** Running CLI\n')
 CLI(net)
 info('*** Stopping network')

@@ -19,7 +19,7 @@ RUN apk update && apk add --no-cache git
 COPY benchmark-server/server.go server.go
 RUN CGO_ENABLED=0 go build -o /benchmark-server server.go
 
-FROM scratch
+FROM ubuntu:trusty
 COPY --from=client-builder /benchmark-client /bin/benchmark-client
 COPY --from=server-builder /benchmark-server /bin/benchmark-server
 # The CMD should be replaced with a proper benchmark command line arguments and run via `docker run ...`
