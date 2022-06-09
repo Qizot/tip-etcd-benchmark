@@ -16,10 +16,14 @@ etcd1 = net.addDocker(
     ip='10.0.0.251', 
     dimage="etcd_wrapper",
     environment={
-        'ETCD_LISTEN_CLIENT_URLS': 'http://10.0.0.251:2379',
-        'ETCD_ADVERTISE_CLIENT_URLS': 'http://10.0.0.251:2379',
+        'ETCD_LISTEN_CLIENT_URLS': 'http://0.0.0.0:2379',
+        'ETCD_ADVERTISE_CLIENT_URLS': 'http://0.0.0.0:2380',
+        "ALLOW_NONE_AUTHENTICATION": "yes"
     },
-    ports=[2379]
+    # it doesn't work, i don't know why
+    # you can start it using following command
+    # etcd1 /opt/bitnami/scripts/etcd/run.sh
+    # dcmd='/opt/bitnami/scripts/etcd/run.sh &'
 )
 
 info('*** Adding benchmark containers')

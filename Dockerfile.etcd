@@ -5,3 +5,6 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     iputils-ping \
     iproute2 
+
+# after uncommenting it, routing will work, but etcd won't start
+# USER 1001
