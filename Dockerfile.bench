@@ -14,7 +14,7 @@ RUN CGO_ENABLED=0 go build -o /benchmark-client
 FROM golang:alpine AS server-builder
 
 WORKDIR /app
-RN apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache git
 
 COPY benchmark-server/server.go server.go
 RUN CGO_ENABLED=0 go build -o /benchmark-server server.go

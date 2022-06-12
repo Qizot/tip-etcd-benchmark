@@ -1,6 +1,6 @@
-import os
+# import os
 
-os.environ["XTABLES_LIBDIR"] = "/home/qizot/iptables-tmp"
+# os.environ["XTABLES_LIBDIR"] = "/home/qizot/iptables-tmp"
 
 from mininet.net import Containernet
 from mininet.node import Controller
@@ -26,11 +26,7 @@ etcd1 = net.addDocker(
     },
     ports=[2379, 2380],
     port_bindings={2379:2379, 2380:2380},
-    # it doesn't work, i don't know why
-    # you can start it using following command
-    # etcd1 /opt/bitnami/scripts/etcd/run.sh
     dcmd='/opt/bitnami/scripts/etcd/run.sh'
-    # dcmd='echo hello'
 )
 
 
@@ -48,24 +44,11 @@ benchmark1 = net.addDocker(
     port_bindings={8080:8080}
 )
 
-benchmark2 = net.addDocker(
-    'benchmark2', 
-    ip='10.0.0.253', 
-    dimage='etcd_benchmark',
-    environment={
-      "BENCHMARK_EXEC": "/bin/benchmark-client"
-    },
-    dcmd='/bin/benchmark-server &',
-    ports=[8080],
-    port_bindings={8080:8081}
-)
-
 info('*** Adding switches\n')
 s1 = net.addSwitch('s1')
 s2 = net.addSwitch('s2')
 info('*** Creating links\n')
 net.addLink(etcd1, s1)
-net.addLink(benchmark2, s1)
 net.addLink(s1, s2, cls=TCLink, delay='100ms', bw=1)
 net.addLink(s2, benchmark1)
 
