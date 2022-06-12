@@ -1,4 +1,5 @@
 FROM docker.io/bitnami/minideb:bullseye
+# FROM ubuntu:trusty
 LABEL maintainer "Bitnami <containers@bitnami.com>"
 
 ENV HOME="/" \
@@ -8,7 +9,8 @@ ENV HOME="/" \
 
 COPY prebuildfs /
 # Install required system packages and dependencies
-RUN install_packages acl ca-certificates curl gzip procps tar
+RUN install_packages acl ca-certificates curl gzip procps tar iputils-ping iproute2 net-tools
+# RUN apt install -y acl ca-certificates curl gzip procps tar ping curl
 RUN . /opt/bitnami/scripts/libcomponent.sh && component_unpack "yq" "4.25.2-150" --checksum 58fc2dcc9eda8b5e88ef23081c14384a33ac4736d7238d490416fb4c5c633994
 RUN . /opt/bitnami/scripts/libcomponent.sh && component_unpack "gosu" "1.14.0-150" --checksum da4a2f759ccc57c100d795b71ab297f48b31c4dd7578d773d963bbd49c42bd7b
 RUN . /opt/bitnami/scripts/libcomponent.sh && component_unpack "etcd" "3.5.4-150" --checksum b46e1dcd24a1a6ab70dccfe0a32b8f49581a51f1c72d7f2299a5807564fa16b9
@@ -23,6 +25,7 @@ ENV APP_VERSION="3.5.4" \
     PATH="/opt/bitnami/common/bin:/opt/bitnami/etcd/bin:$PATH"
 
 EXPOSE 2379 2380
+
 
 WORKDIR /opt/bitnami/etcd
 USER root
