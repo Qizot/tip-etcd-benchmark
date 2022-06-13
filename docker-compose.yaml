@@ -1,10 +1,14 @@
 version: "3.9"
 services:
   etcd:
-    image: bitnami/etcd:3.3.27-debian-10-r63
+    build:
+      context: etcd_custom
+    image: etcd_custom 
     ports:
       - "2379:2379"
     environment:
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+      ETCD_ADVERTISE_CLIENT_URLS: "http://0.0.0.0:2380"
       ALLOW_NONE_AUTHENTICATION: "yes"
   benchmark:
     image: etcd-benchmark 

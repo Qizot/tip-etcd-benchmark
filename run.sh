@@ -1,5 +1,8 @@
 #!/bin/bash
 
-docker build -t etcd_benchmark ./client-benchmark
+docker build -t etcd_benchmark -f Dockerfile.bench ./
 
-python3 main.py
+docker build -t etcd_custom ./etcd_custom
+
+
+sudo python3 containernet-environment/main.py
