@@ -53,16 +53,29 @@ cd containernet
 sudo python3 setup.py install
 ```
 
+3. Build docker images
+
 ```sh
-./run.sh
+./build.sh
 ```
-    
-Then you can test it using:
+
+4. Run etcd and benchamrk in containernet. There are two modes:
+* cluster
+* standalone
+
+```sh
+sudo python3 containernet-environment/main.py [ cluster | standalone ]
+```    
+
+5. Check cluster state:
+
+```
+etcd1 etcdctl member list
+```
+
+6. Then you can test it using:
 ```sh
 curl -d '{"endpoints": "10.0.0251:2379", "clients": 5, "total": 1000, "key": "foo", "endRange": "foo3"}'  http://localhost:8080/benchmark/read
 ```
 
-To check cluster state run
-```
-etcd1 etcdctl member list
-```
+

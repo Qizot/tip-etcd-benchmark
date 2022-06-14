@@ -1,13 +1,24 @@
 # import os
 
 # os.environ["XTABLES_LIBDIR"] = "/home/qizot/iptables-tmp"
-
+import sys
 from mininet.net import Containernet
 from mininet.node import Controller
 from mininet.cli import CLI
 from mininet.link import TCLink
-from mininet.log import info, setLogLevel
+from mininet.log import info, setLogLevel, error
 from mininet.clean import cleanup
+setLogLevel('info')
+if len(sys.argv) != 2:
+    error("Pass mode as a command line argument!\n USAGE: sudo python3 main.py [cluster|standalone]\n")
+    sys.exit()
+mode = sys.argv[1]
+cluster_mode = mode == "cluster"
+standalone_mode = mode == "standalone"
+
+if not cluster_mode and not standalone_mode:
+    error("Invalid mode passed! Available modes: cluster | standalone\n")
+    sys.exit()
 
 cleanup()
 net = Containernet(controller=Controller)
@@ -29,48 +40,52 @@ etcd1 = net.addDocker(
         "ETCD_INITIAL_CLUSTER_TOKEN": "etcd-cluster",
         "ETCD_INITIAL_CLUSTER": "etcd1=http://10.0.0.251:2380,etcd2=http://10.0.0.253:2380,etcd3=http://10.0.0.254:2380",
         "ETCD_INITIAL_CLUSTER_STATE": "new"
+    } if cluster_mode else {
+        'ETCD_ADVERTISE_CLIENT_URLS': 'http://10.0.0.251:2379',
+        "ALLOW_NONE_AUTHENTICATION": "yes",
     },
     ports=[2379, 2380],
     dcmd='/opt/bitnami/scripts/etcd/run.sh'
 )
 
-etcd2 = net.addDocker(
-    'etcd2', 
-    ip='10.0.0.253', 
-    dimage="etcd_custom",
-    environment={
-        'ETCD_ADVERTISE_CLIENT_URLS': 'http://10.0.0.253:2379',
-        "ALLOW_NONE_AUTHENTICATION": "yes",
-        "ETCD_NAME": "etcd2",
-        "ETCD_INITIAL_ADVERTISE_PEER_URLS": "http://10.0.0.253:2380",
-        "ETCD_LISTEN_PEER_URLS": "http://0.0.0.0:2380",
-        "ETCD_LISTEN_CLIENT_URLS": "http://0.0.0.0:2379",
-        "ETCD_INITIAL_CLUSTER_TOKEN": "etcd-cluster",
-        "ETCD_INITIAL_CLUSTER": "etcd1=http://10.0.0.251:2380,etcd2=http://10.0.0.253:2380,etcd3=http://10.0.0.254:2380",
-        "ETCD_INITIAL_CLUSTER_STATE": "new"
-    },
-    ports=[2379, 2380],
-    dcmd='/opt/bitnami/scripts/etcd/run.sh'
-)
+if cluster_mode:
+    etcd2 = net.addDocker(
+        'etcd2', 
+        ip='10.0.0.253', 
+        dimage="etcd_custom",
+        environment={
+            'ETCD_ADVERTISE_CLIENT_URLS': 'http://10.0.0.253:2379',
+            "ALLOW_NONE_AUTHENTICATION": "yes",
+            "ETCD_NAME": "etcd2",
+            "ETCD_INITIAL_ADVERTISE_PEER_URLS": "http://10.0.0.253:2380",
+            "ETCD_LISTEN_PEER_URLS": "http://0.0.0.0:2380",
+            "ETCD_LISTEN_CLIENT_URLS": "http://0.0.0.0:2379",
+            "ETCD_INITIAL_CLUSTER_TOKEN": "etcd-cluster",
+            "ETCD_INITIAL_CLUSTER": "etcd1=http://10.0.0.251:2380,etcd2=http://10.0.0.253:2380,etcd3=http://10.0.0.254:2380",
+            "ETCD_INITIAL_CLUSTER_STATE": "new"
+        },
+        ports=[2379, 2380],
+        dcmd='/opt/bitnami/scripts/etcd/run.sh'
+    )
 
-etcd3 = net.addDocker(
-    'etcd3', 
-    ip='10.0.0.254', 
-    dimage="etcd_custom",
-    environment={
-        'ETCD_ADVERTISE_CLIENT_URLS': 'http://10.0.0.254:2379',
-        "ALLOW_NONE_AUTHENTICATION": "yes",
-        "ETCD_NAME": "etcd3",
-        "ETCD_INITIAL_ADVERTISE_PEER_URLS": "http://10.0.0.254:2380",
-        "ETCD_LISTEN_PEER_URLS": "http://0.0.0.0:2380",
-        "ETCD_LISTEN_CLIENT_URLS": "http://0.0.0.0:2379",
-        "ETCD_INITIAL_CLUSTER_TOKEN": "etcd-cluster",
-        "ETCD_INITIAL_CLUSTER": "etcd1=http://10.0.0.251:2380,etcd2=http://10.0.0.253:2380,etcd3=http://10.0.0.254:2380",
-        "ETCD_INITIAL_CLUSTER_STATE": "new"
-    },
-    ports=[2379, 2380],
-    dcmd='/opt/bitnami/scripts/etcd/run.sh'
-)
+    etcd3 = net.addDocker(
+        'etcd3', 
+        ip='10.0.0.254', 
+        dimage="etcd_custom",
+        environment={
+            'ETCD_ADVERTISE_CLIENT_URLS': 'http://10.0.0.254:2379',
+            "ALLOW_NONE_AUTHENTICATION": "yes",
+            "ETCD_NAME": "etcd3",
+            "ETCD_INITIAL_ADVERTISE_PEER_URLS": "http://10.0.0.254:2380",
+            "ETCD_LISTEN_PEER_URLS": "http://0.0.0.0:2380",
+            "ETCD_LISTEN_CLIENT_URLS": "http://0.0.0.0:2379",
+            "ETCD_INITIAL_CLUSTER_TOKEN": "etcd-cluster",
+            "ETCD_INITIAL_CLUSTER": "etcd1=http://10.0.0.251:2380,etcd2=http://10.0.0.253:2380,etcd3=http://10.0.0.254:2380",
+            "ETCD_INITIAL_CLUSTER_STATE": "new"
+        },
+        ports=[2379, 2380],
+        dcmd='/opt/bitnami/scripts/etcd/run.sh'
+    )
 
 
 info('*** Adding benchmark containers')
@@ -92,8 +107,9 @@ s1 = net.addSwitch('s1')
 s2 = net.addSwitch('s2')
 info('*** Creating links\n')
 net.addLink(etcd1, s1)
-net.addLink(etcd2, s1)
-net.addLink(etcd3, s1)
+if cluster_mode:
+    net.addLink(etcd2, s1)
+    net.addLink(etcd3, s1)
 net.addLink(s1, s2, cls=TCLink, delay='100ms', bw=1)
 net.addLink(s2, benchmark1)
 
