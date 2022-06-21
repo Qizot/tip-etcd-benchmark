@@ -13,20 +13,19 @@ from mininet.log import info, setLogLevel, error
 from mininet.clean import cleanup
 
 def setup_etcd_instances(net, switch, config_file_path):
-    configs = json.loads(config_file_path)
-    print(configs)
+    configs = json.load(open(config_file_path))
 
     if type(configs) != list or len(configs) < 1:
         raise RuntimeError("The config file should be a json array containing at least one instance")
 
 
     print(config_file_path)
-    initial_cluster = ",".join([f"ectd_{idx}=http://{node['ip']}:2380" for idx, node in enumerate(configs)])
+    initial_cluster = ",".join([f"etcd{idx}=http://{node['ip']}:2380" for idx, node in enumerate(configs)])
 
     instances = []
 
     for idx, instance_cfg in enumerate(configs): 
-        name = f"etcd_{idx}"
+        name = f"etcd{idx}"
         ip = instance_cfg["ip"]
         # string representation of memory e.g. 100mb
         mem = instance_cfg["mem"]
@@ -51,13 +50,12 @@ def setup_etcd_instances(net, switch, config_file_path):
                 "ETCD_INITIAL_ADVERTISE_PEER_URLS": f"http://{ip}:2380",
                 "ETCD_LISTEN_PEER_URLS": "http://0.0.0.0:2380",
                 "ETCD_LISTEN_CLIENT_URLS": "http://0.0.0.0:2379",
-
                 "ETCD_INITIAL_CLUSTER": initial_cluster, 
             },
             ports=[2379, 2380],
             dcmd='/opt/bitnami/scripts/etcd/run.sh',
             cpus=cpus,
-            memor=mem,
+            memory=mem,
         )
         instances.append(instance)
 
@@ -71,6 +69,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("-c", "--config-file", type=str, required=True, help="etcd instances configuration file")
 args = parser.parse_args()
+print(args)
 
 setLogLevel('info')
 
