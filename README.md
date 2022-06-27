@@ -75,7 +75,7 @@ etcd1 etcdctl member list
 
 6. Then you can test it using:
 ```sh
-curl -d '{"endpoints": "10.0.0251:2379", "clients": 5, "total": 1000, "key": "foo", "endRange": "foo3"}'  http://localhost:8080/benchmark/read
+sudo ./test.sh [config_file_path] [output_filename]
 ```
 
 
