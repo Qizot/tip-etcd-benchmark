@@ -111,6 +111,7 @@ net.addLink(s2, benchmark)
 
 info('*** Starting network\n')
 net.start()
+print("Ready")
 info('*** Running CLI\n')
 CLI(net)
 info('*** Stopping network')

@@ -21,6 +21,8 @@ type BenchParams struct {
 	Clients int
 	// total number of put/range test cases
 	Total int
+	// number of connections
+	Conns int
 }
 
 func (params BenchParams) ToList() []string {
@@ -28,6 +30,7 @@ func (params BenchParams) ToList() []string {
 		"--endpoints", params.Endpoints,
 		"--clients", fmt.Sprintf("%d", params.Clients),
 		"--total", fmt.Sprintf("%d", params.Total),
+		"--conns", fmt.Sprintf("%d", params.Conns),
 	}
 }
 
@@ -36,11 +39,44 @@ type ReadBenchParams struct {
 	
 	Key string
 	EndRange string
+	Consistency string
 }
 
 func (params ReadBenchParams) ToList() []string {
 	baseParams := params.BenchParams.ToList()
-	result := append([]string{"range", params.Key, params.EndRange}, baseParams...)
+	result := append([]string{"range", params.Key, params.EndRange, "--consistency", params.Consistency}, baseParams...)
+	
+	return result
+}
+
+type WriteBenchParams struct {
+	BenchParams
+	
+	KeySize int
+	ValSize int
+
+	TargetLeader bool
+	SequentialKeys bool
+}
+
+func (params WriteBenchParams) ToList() []string {
+	baseParams := params.BenchParams.ToList()
+	result := append([]string{
+		"--key-size", fmt.Sprintf("%d", params.KeySize),
+		"--val-size", fmt.Sprintf("%d", params.ValSize),
+	}, baseParams...)
+
+	if params.TargetLeader {
+		result = append([]string{
+			"--target-leader",
+		}, result...)
+	}
+
+	if params.SequentialKeys {
+		result = append([]string{
+			"--sequential-keys",
+		}, result...)
+	}
 	
 	return result
 }
@@ -108,7 +144,7 @@ func readBenchmark(w http.ResponseWriter, req *http.Request) {
 }
 
 func writeBenchmark(w http.ResponseWriter, req *http.Request) {
-	params, err := benchParamsFromRequest[BenchParams](req)
+	params, err := benchParamsFromRequest[WriteBenchParams](req)
 	if err != nil {
 		writeError(w, err)
 		return
