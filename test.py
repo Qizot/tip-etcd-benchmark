@@ -10,7 +10,7 @@ BENCHMARK_COLUMNS = ["Total", "Slowest", "Fastest",
   "50%", "75%", "90%", "95%"] 
 
 CONFIG_COLUMNS = ["TestType", "ClusterSize", "RequestCount", 
-  "ClientCount", "ConnectionCount", "KeySize", "ValueSize", "Consistency"]
+  "ClientCount", "ConnectionCount", "KeySize", "ValueSize", "Consistency", "TargetLeader"]
 
 CSV_FIELDS = [*CONFIG_COLUMNS, *BENCHMARK_COLUMNS] 
 
@@ -63,7 +63,7 @@ def timeout_handler(signum, frame):   # Custom signal handler
 def map_scenario_to_csv(scenario):
   return [str(scenario['total']), str(scenario['clients']), 
     str(scenario['conns']), str(scenario.get('keySize', '-')),
-    str(scenario.get('valSize', '-')), str(scenario.get('consistency', '-'))]
+    str(scenario.get('valSize', '-')), str(scenario.get('consistency', '-')), str(scenario.get('targetLeader', '-'))]
 
 def read_config_file_contents(file_path):
 
