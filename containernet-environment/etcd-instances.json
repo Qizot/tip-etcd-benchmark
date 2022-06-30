@@ -2,15 +2,15 @@
   {
     "ip": "10.0.0.251",
     "mem": "100m",
-    "cpus": "24",
-    "bandwidth": 1000,
-    "link_delay": "3ms"
+    "cpus": "0.5",
+    "bandwidth": 100,
+    "link_delay": "30ms"
   },
   {
     "ip": "10.0.0.252",
     "mem": "100m",
-    "cpus": "24",
-    "bandwidth": 1000,
-    "link_delay": "3ms"
+    "cpus": "0.5",
+    "bandwidth": 100,
+    "link_delay": "30ms"
   }
 ]

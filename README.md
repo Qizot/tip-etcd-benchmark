@@ -50,9 +50,9 @@ Example call with `curl`:
 ```bash
 # watchout when using docker-compose setup as the localhost domain will map to `etcd`
 # read benchmark
-curl -d '{"endpoints": "localhost:2379", "clients": 5, "total": 1000, "key": "foo", "endRange": "foo3", "consistency": "l"}'  http://localhost:8080/benchmark/read
+curl -d '{"endpoints": "10.0.0.251:2379", "clients": 5, "conns": 5, "total": 1000, "key": "foo", "endRange": "foo3", "consistency": "l"}'  http://localhost:8080/benchmark/read
 # write benchmark
-curl -d '{"endpoints": "localhost:2379", "clients": 5, "total": 1000, "keySize": 8, "valSize": 256, "sequentialKeys": true}'  http://localhost:8080/benchmark/write
+curl -d '{"endpoints": "10.0.0.251:2379", "clients": 5, "conns": 5, "total": 1000, "keySize": 4, "valSize": 64, "targetLeader": true, "sequentialKeys": true}'  http://localhost:8080/benchmark/read
 ```
 
 
@@ -107,7 +107,7 @@ etcd1 etcdctl member list
 
 6. Then you can test it using:
 ```sh
-curl -d '{"endpoints": "10.0.0.251:2379", "clients": 5, "total": 1000, "key": "foo", "endRange": "foo3"}'  http://localhost:8080/benchmark/read
+curl -d '{"endpoints": "10.0.0.251:2379", "clients": 5, "conns": 5, "total": 1000, "key": "foo", "endRange": "foo3", "consistency": "l"}'  http://localhost:8080/benchmark/read
 ```
 
 
